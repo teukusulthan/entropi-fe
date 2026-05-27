@@ -1,0 +1,122 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #f6f7f4;
+    --foreground: #172033;
+    --surface: rgba(255, 255, 255, 0.88);
+    --surface-strong: #ffffff;
+    --border: rgba(23, 32, 51, 0.08);
+    --border-strong: rgba(23, 32, 51, 0.14);
+    --muted: #667085;
+    --accent: #0f766e;
+    --accent-strong: #115e59;
+    --accent-soft: rgba(15, 118, 110, 0.1);
+    --shadow: 0 20px 45px rgba(15, 23, 42, 0.06);
+    --focus-ring: rgba(15, 118, 110, 0.22);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 28%),
+      linear-gradient(180deg, #fbfcfa 0%, var(--background) 100%);
+    color: var(--foreground);
+  }
+
+  a,
+  button,
+  summary,
+  input,
+  select,
+  textarea,
+  [role='button'],
+  [tabindex]:not([tabindex='-1']) {
+    @apply outline-none;
+  }
+
+  a,
+  button,
+  summary,
+  select,
+  input[type='button'],
+  input[type='checkbox'],
+  input[type='color'],
+  input[type='file'],
+  input[type='radio'],
+  input[type='range'],
+  input[type='reset'],
+  input[type='submit'],
+  [role='button'],
+  [tabindex]:not([tabindex='-1']) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  input[type='date'],
+  input[type='email'],
+  input[type='number'],
+  input[type='password'],
+  input[type='search'],
+  input[type='tel'],
+  input[type='text'],
+  input[type='time'],
+  input[type='url'],
+  textarea {
+    cursor: text;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  summary:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role='button']:focus-visible,
+  [tabindex]:not([tabindex='-1']):focus-visible {
+    box-shadow:
+      0 0 0 2px rgba(246, 247, 244, 0.95),
+      0 0 0 4px var(--focus-ring);
+  }
+
+  ::selection {
+    background: rgba(15, 118, 110, 0.18);
+  }
+}
+
+body {
+  font-family: var(--font-manrope), system-ui, -apple-system, sans-serif;
+}
+
+@layer utilities {
+  .surface-card {
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    box-shadow: var(--shadow);
+  }
+
+  .sr-only-focusable {
+    @apply sr-only;
+  }
+
+  .sr-only-focusable:focus {
+    @apply not-sr-only fixed left-4 top-4 z-[120] rounded-xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white;
+  }
+}
