@@ -341,7 +341,7 @@ export function OrderTable({ orders, loading, error, onCreateOrder }: OrderTable
         )}
       </div>
 
-      <Table>
+      <Table className="min-h-[320px]">
         <TableHead>
           <tr>
             <TableHeader>Order ID</TableHeader>
