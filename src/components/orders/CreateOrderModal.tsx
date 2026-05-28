@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Modal } from '../ui/Modal';
-import { Select } from '../ui/Input';
+import { Dropdown } from '../ui/Dropdown';
 import { Button } from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { createOrder, payOrder, calculateOrderFees } from '@/lib/api';
@@ -195,17 +195,15 @@ export function CreateOrderModal({
 
         {/* Customer */}
         <div className="space-y-2">
-          <Select
+          <Dropdown
             id="customerId"
             label="Customer"
             options={presetCustomers}
             value={selectedCustomer}
-            onChange={(e) => {
-              setSelectedCustomer(e.target.value);
+            onChange={(v) => {
+              setSelectedCustomer(v);
               setNewCustomerName('');
-              setGeneratedCustomerId(
-                e.target.value === NEW_CUSTOMER ? generateNumericCustomerId() : ''
-              );
+              setGeneratedCustomerId(v === NEW_CUSTOMER ? generateNumericCustomerId() : '');
               setError(null);
             }}
           />
@@ -228,12 +226,12 @@ export function CreateOrderModal({
         </div>
 
         {/* Payment method */}
-        <Select
+        <Dropdown
           id="paymentMethod"
           label="Payment Method"
           options={paymentMethods}
           value={paymentMethod}
-          onChange={(e) => setPaymentMethod(e.target.value)}
+          onChange={setPaymentMethod}
         />
 
         {error && (
