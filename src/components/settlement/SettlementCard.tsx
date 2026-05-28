@@ -61,6 +61,7 @@ export function SettlementCard({ settlement, processedOrders }: SettlementCardPr
     <>
       {/* Print-only stylesheet */}
       <style>{`
+        @page { margin: 0; }
         @media print {
           body * { visibility: hidden !important; }
           #settlement-report, #settlement-report * { visibility: visible !important; }
