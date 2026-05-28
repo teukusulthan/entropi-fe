@@ -371,11 +371,13 @@ export function OrderTable({ orders, loading, error, onCreateOrder }: OrderTable
         <TableBody>
           {paginated && paginated.length === 0 ? (
             <tr>
-              <td colSpan={7} className="py-12 text-center">
-                <p className="text-sm text-slate-500">No orders match your search or filters.</p>
-                <button onClick={clearAll} className="mt-2 text-xs font-medium text-[var(--accent)] hover:underline">
-                  Clear all
-                </button>
+              <td colSpan={7}>
+                <div className="flex min-h-[360px] flex-col items-center justify-center gap-2">
+                  <p className="text-sm text-slate-500">No orders match your search or filters.</p>
+                  <button onClick={clearAll} className="text-xs font-medium text-[var(--accent)] hover:underline">
+                    Clear all
+                  </button>
+                </div>
               </td>
             </tr>
           ) : (
