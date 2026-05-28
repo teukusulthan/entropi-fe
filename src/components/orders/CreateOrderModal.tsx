@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Modal } from '../ui/Modal';
-import { Input, Select } from '../ui/Input';
+import { Select } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { createOrder, payOrder, calculateOrderFees } from '@/lib/api';
@@ -14,10 +14,19 @@ interface CreateOrderModalProps {
   onCreated: () => void;
 }
 
+const customers = [
+  { value: 'cust-alice-johnson',   label: 'Alice Johnson' },
+  { value: 'cust-bob-smith',       label: 'Bob Smith' },
+  { value: 'cust-acme-corp',       label: 'Acme Corp' },
+  { value: 'cust-diana-chen',      label: 'Diana Chen' },
+  { value: 'cust-techflow-inc',    label: 'TechFlow Inc' },
+  { value: 'cust-marcus-williams', label: 'Marcus Williams' },
+];
+
 const paymentMethods = [
-  { value: 'card', label: 'Card' },
+  { value: 'card',          label: 'Card' },
   { value: 'bank_transfer', label: 'Bank Transfer' },
-  { value: 'wallet', label: 'Wallet' },
+  { value: 'wallet',        label: 'Wallet' },
 ];
 
 const amountPattern = /^\d*(?:\.\d{0,4})?$/;
@@ -42,14 +51,14 @@ export function CreateOrderModal({
 }: CreateOrderModalProps) {
   const { showToast } = useToast();
   const [amount, setAmount] = useState('');
-  const [customerId, setCustomerId] = useState('');
+  const [customerId, setCustomerId] = useState(customers[0].value);
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function resetForm() {
     setAmount('');
-    setCustomerId('');
+    setCustomerId(customers[0].value);
     setPaymentMethod('card');
     setError(null);
   }
@@ -84,8 +93,8 @@ export function CreateOrderModal({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!amount || !customerId) {
-      const message = 'Please fill in all fields.';
+    if (!amount) {
+      const message = 'Please enter an amount.';
       setError(message);
       showToast({
         variant: 'error',
@@ -190,14 +199,12 @@ export function CreateOrderModal({
             Enter a USD amount with up to 4 decimal places.
           </p>
         </div>
-        <Input
+        <Select
           id="customerId"
-          label="Customer ID"
-          type="text"
-          placeholder="customer-id"
+          label="Customer"
+          options={customers}
           value={customerId}
           onChange={(e) => setCustomerId(e.target.value)}
-          required
         />
         <Select
           id="paymentMethod"
