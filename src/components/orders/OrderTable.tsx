@@ -44,36 +44,22 @@ interface ColumnFilterProps {
 
 function ColumnFilter({ label, value, options, onChange, align = 'left' }: ColumnFilterProps) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const active = value !== 'all';
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (
-        panelRef.current && !panelRef.current.contains(e.target as Node) &&
-        btnRef.current  && !btnRef.current.contains(e.target as Node)
-      ) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  function handleToggle() {
-    if (!open && btnRef.current) {
-      const r = btnRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom + 6, left: align === 'right' ? r.right - 160 : r.left });
-    }
-    setOpen(o => !o);
-  }
-
   return (
-    <div className="inline-flex">
+    <div ref={ref} className="inline-flex">
       <button
-        ref={btnRef}
         type="button"
-        onClick={handleToggle}
+        onClick={() => setOpen(o => !o)}
         className={`flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-150 ${
           active ? 'text-[var(--accent-strong)]' : 'text-slate-500 hover:text-slate-700'
         }`}
@@ -86,11 +72,7 @@ function ColumnFilter({ label, value, options, onChange, align = 'left' }: Colum
       </button>
 
       {open && (
-        <div
-          ref={panelRef}
-          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className="min-w-max overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.12)]"
-        >
+        <div className={`absolute top-full z-50 mt-1 min-w-max overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.12)] ${align === 'right' ? 'right-0' : 'left-0'}`}>
           {options.map(opt => (
             <button
               key={opt.value}
@@ -127,36 +109,22 @@ interface DateRangeFilterProps {
 
 function DateRangeFilter({ from, to, onFromChange, onToChange }: DateRangeFilterProps) {
   const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const active = from !== '' || to !== '';
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (
-        panelRef.current && !panelRef.current.contains(e.target as Node) &&
-        btnRef.current  && !btnRef.current.contains(e.target as Node)
-      ) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  function handleToggle() {
-    if (!open && btnRef.current) {
-      const r = btnRef.current.getBoundingClientRect();
-      setPos({ top: r.bottom + 6, left: r.right - 208 });
-    }
-    setOpen(o => !o);
-  }
-
   return (
-    <div className="inline-flex">
+    <div ref={ref} className="inline-flex">
       <button
-        ref={btnRef}
         type="button"
-        onClick={handleToggle}
+        onClick={() => setOpen(o => !o)}
         className={`flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-150 ${
           active ? 'text-[var(--accent-strong)]' : 'text-slate-500 hover:text-slate-700'
         }`}
@@ -169,11 +137,7 @@ function DateRangeFilter({ from, to, onFromChange, onToChange }: DateRangeFilter
       </button>
 
       {open && (
-        <div
-          ref={panelRef}
-          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className="w-52 overflow-hidden rounded-xl border border-[var(--border)] bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.12)]"
-        >
+        <div className="absolute right-0 top-full z-50 mt-1 w-52 overflow-hidden rounded-xl border border-[var(--border)] bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.12)]">
           <div className="space-y-3">
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-slate-500">From</label>

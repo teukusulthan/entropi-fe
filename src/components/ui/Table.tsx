@@ -5,7 +5,7 @@ interface TableProps {
 
 export function Table({ children, className = '' }: TableProps) {
   return (
-    <div className={`overflow-x-auto ${className}`}>
+    <div className={`w-full ${className}`}>
       <table className="min-w-full divide-y divide-[var(--border)]">
         {children}
       </table>
@@ -55,7 +55,7 @@ export function TableHeader({
   };
   return (
     <th
-      className={`px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 ${alignClass[align]} ${className}`}
+      className={`relative px-5 py-4 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 ${alignClass[align]} ${className}`}
     >
       {children}
     </th>
