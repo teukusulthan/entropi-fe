@@ -90,13 +90,14 @@ export function CreateOrderModal({
     setAmount(normalized ?? value);
   }
 
-  function stepAmount(delta: 1 | -1) {
+  function stepAmount(delta: number) {
     setAmount((current) => {
       const normalized = normalizeAmount(current) ?? '0.0000';
-      const [whole, fractional] = normalized.split('.');
-      const nextWhole = BigInt(whole) + BigInt(delta);
-      const safeWhole = nextWhole < BigInt(0) ? BigInt(0) : nextWhole;
-      return `${safeWhole.toString()}.${fractional}`;
+      const SCALE = 10000;
+      const currentScaled = Math.round(parseFloat(normalized) * SCALE);
+      const deltaScaled = Math.round(delta * SCALE);
+      const nextScaled = Math.max(0, currentScaled + deltaScaled);
+      return (nextScaled / SCALE).toFixed(4);
     });
   }
 
@@ -176,18 +177,26 @@ export function CreateOrderModal({
               value={amount}
               onChange={(e) => handleAmountChange(e.target.value)}
               onBlur={(e) => handleAmountBlur(e.target.value)}
-              className="block min-h-11 w-full rounded-xl border border-[var(--border-strong)] bg-white/90 py-3 pl-8 pr-24 text-sm text-slate-900 placeholder-slate-500 shadow-sm outline-none transition focus:border-[var(--accent)]"
+              className="block min-h-11 w-full rounded-xl border border-[var(--border-strong)] bg-white/90 py-3 pl-8 pr-44 text-sm text-slate-900 placeholder-slate-500 shadow-sm outline-none transition focus:border-[var(--accent)]"
               required
             />
             <div className="absolute inset-y-1 right-1 flex overflow-hidden rounded-lg border border-[var(--border)] bg-slate-50">
-              <button type="button" aria-label="Decrease amount by 1" onClick={() => stepAmount(-1)}
-                className="cursor-pointer px-3 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-slate-900">
-                -
-              </button>
-              <button type="button" aria-label="Increase amount by 1" onClick={() => stepAmount(1)}
-                className="cursor-pointer border-l border-[var(--border)] px-3 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-slate-900">
-                +
-              </button>
+              {[
+                { label: '−1',   delta: -1,   aria: 'Decrease by 1' },
+                { label: '−.1',  delta: -0.1, aria: 'Decrease by 0.1' },
+                { label: '+.1',  delta:  0.1, aria: 'Increase by 0.1' },
+                { label: '+1',   delta:  1,   aria: 'Increase by 1' },
+              ].map((btn, i) => (
+                <button
+                  key={btn.label}
+                  type="button"
+                  aria-label={btn.aria}
+                  onClick={() => stepAmount(btn.delta)}
+                  className={`cursor-pointer px-2.5 text-xs font-bold text-slate-600 transition hover:bg-white hover:text-slate-900 ${i > 0 ? 'border-l border-[var(--border)]' : ''}`}
+                >
+                  {btn.label}
+                </button>
+              ))}
             </div>
           </div>
           <p className="text-xs text-slate-500">Enter a USD amount with up to 4 decimal places.</p>
