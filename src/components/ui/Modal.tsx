@@ -14,13 +14,18 @@ const sizeClass = { md: 'max-w-md', lg: 'max-w-2xl', xl: 'max-w-4xl' };
 
 export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     if (open) {
+      setMounted(true);
       const t = setTimeout(() => setVisible(true), 10);
       return () => clearTimeout(t);
+    } else {
+      setVisible(false);
+      const t = setTimeout(() => setMounted(false), 300);
+      return () => clearTimeout(t);
     }
-    setVisible(false);
   }, [open]);
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -71,7 +76,7 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   return (
     <div
@@ -81,13 +86,13 @@ export function Modal({ open, onClose, title, children, size = 'md' }: ModalProp
         if (e.target === overlayRef.current) onClose();
       }}
     >
-      <div className={`fixed inset-0 bg-slate-950/35 transition-[backdrop-filter,opacity] duration-500 ease-in-out ${visible ? 'opacity-100 backdrop-blur-sm' : 'opacity-0 backdrop-blur-none'}`} />
+      <div className={`fixed inset-0 bg-slate-950/35 transition-[backdrop-filter,opacity] duration-300 ease-in-out ${visible ? 'opacity-100 backdrop-blur-sm' : 'opacity-0 backdrop-blur-none'}`} />
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`surface-card relative mx-4 w-full cursor-default rounded-[28px] border border-[var(--border)] transition-all duration-500 ease-in-out ${sizeClass[size]} ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}
+        className={`surface-card relative mx-4 w-full cursor-default rounded-[28px] border border-[var(--border)] transition-all duration-300 ease-in-out ${sizeClass[size]} ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}
       >
         <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-5">
           <h2 id={titleId} className="text-lg font-semibold text-slate-900">
