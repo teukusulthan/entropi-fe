@@ -8,7 +8,7 @@ import {
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { Spinner } from '../ui/Spinner';
 import { EmptyState } from '../ui/EmptyState';
-import { formatCurrency, formatDate, truncateId } from '@/lib/utils';
+import { formatCurrency, formatDate, isPositiveDecimalString, truncateId } from '@/lib/utils';
 import type { Order, OrderStatus } from '@/lib/types';
 
 /* ── constants ──────────────────────────────────────────────────────── */
@@ -404,7 +404,7 @@ export function OrderTable({ orders, loading, error, onCreateOrder }: OrderTable
                   {formatCurrency(order.amount)}
                 </TableCell>
                 <TableCell align="right" className="font-mono text-slate-400 transition-colors duration-200 group-hover:text-slate-600">
-                  {parseFloat(order.feeAmount) > 0 ? formatCurrency(order.feeAmount) : '-'}
+                  {isPositiveDecimalString(order.feeAmount) ? formatCurrency(order.feeAmount) : '-'}
                 </TableCell>
                 <TableCell><OrderStatusBadge status={order.status} /></TableCell>
                 <TableCell align="right" className="text-slate-400 transition-colors duration-200 group-hover:text-slate-500">

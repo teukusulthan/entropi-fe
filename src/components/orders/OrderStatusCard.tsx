@@ -6,7 +6,15 @@ import { Button } from '../ui/Button';
 import { Spinner } from '../ui/Spinner';
 import { useToast } from '../ui/Toast';
 import { OrderStatusBadge } from './OrderStatusBadge';
-import { formatCurrency, formatDate, truncateId, generateIdempotencyKey, subtractDecimalStrings } from '@/lib/utils';
+import {
+  formatCurrency,
+  formatDate,
+  truncateId,
+  generateIdempotencyKey,
+  isPositiveDecimalString,
+  subtractDecimalStrings,
+} from '@/lib/utils';
+import { Skeleton } from '../ui/Skeleton';
 import {
   calculateOrderFees,
   deliverOrder,
@@ -91,9 +99,21 @@ export function OrderStatusCard({
   if (loading && !order) {
     return (
       <Card>
+        <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-5 sm:px-7">
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-5 w-36" />
+            <Skeleton className="h-6 w-24 rounded-full" />
+          </div>
+          <Skeleton className="h-4 w-16" />
+        </div>
         <CardBody>
-          <div className="flex items-center justify-center py-8">
-            <Spinner size="lg" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-[var(--border)] bg-white/70 px-4 py-4">
+                <Skeleton className="h-3 w-20 mb-2" />
+                <Skeleton className="h-5 w-28" />
+              </div>
+            ))}
           </div>
         </CardBody>
       </Card>
@@ -119,12 +139,12 @@ export function OrderStatusCard({
     {
       label: 'Payment Received',
       value: formatCurrency(order.paymentReceived),
-      color: parseFloat(order.paymentReceived) > 0 ? 'text-emerald-700' : 'text-slate-900',
+      color: isPositiveDecimalString(order.paymentReceived) ? 'text-emerald-700' : 'text-slate-900',
     },
     {
       label: 'Fee (3%)',
-      value: parseFloat(order.feeAmount) > 0 ? formatCurrency(order.feeAmount) : '-',
-      color: parseFloat(order.feeAmount) > 0 ? 'text-red-600' : 'text-slate-500',
+      value: isPositiveDecimalString(order.feeAmount) ? formatCurrency(order.feeAmount) : '-',
+      color: isPositiveDecimalString(order.feeAmount) ? 'text-red-600' : 'text-slate-500',
     },
     {
       label: 'Net Amount',

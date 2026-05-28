@@ -11,7 +11,13 @@ import {
 import { Spinner } from '../ui/Spinner';
 import { EmptyState } from '../ui/EmptyState';
 import { Card, CardHeader } from '../ui/Card';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import {
+  decimalStringToScaledBigInt,
+  formatCurrency,
+  formatDate,
+  scaledBigIntToDecimalString,
+} from '@/lib/utils';
+import { Skeleton } from '../ui/Skeleton';
 import type { LedgerEntry } from '@/lib/types';
 
 interface LedgerTableProps {
@@ -24,8 +30,23 @@ export function LedgerTable({ entries, loading, error }: LedgerTableProps) {
   if (loading && !entries) {
     return (
       <Card>
-        <div className="flex items-center justify-center py-16">
-          <Spinner size="lg" />
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </CardHeader>
+        <div className="divide-y divide-[var(--border)]">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="grid grid-cols-6 gap-4 px-5 py-4">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3 w-16 ml-auto" />
+              <Skeleton className="h-3 w-16 ml-auto" />
+              <Skeleton className="h-3 w-32 col-span-1" />
+              <Skeleton className="h-3 w-14 ml-auto" />
+            </div>
+          ))}
         </div>
       </Card>
     );
@@ -52,13 +73,12 @@ export function LedgerTable({ entries, loading, error }: LedgerTableProps) {
     );
   }
 
-  const SCALE = 10000;
-  let runningBalanceScaled = 0;
+  let runningBalanceScaled = BigInt(0);
   const entriesWithBalance = entries.map((entry) => {
-    const debit = entry.debit ? Math.round(parseFloat(entry.debit) * SCALE) : 0;
-    const credit = entry.credit ? Math.round(parseFloat(entry.credit) * SCALE) : 0;
+    const debit = decimalStringToScaledBigInt(entry.debit);
+    const credit = decimalStringToScaledBigInt(entry.credit);
     runningBalanceScaled += debit - credit;
-    return { ...entry, runningBalance: runningBalanceScaled / SCALE };
+    return { ...entry, runningBalance: scaledBigIntToDecimalString(runningBalanceScaled) };
   });
 
   return (
@@ -108,12 +128,12 @@ export function LedgerTable({ entries, loading, error }: LedgerTableProps) {
               <TableCell
                 align="right"
                 className={`font-mono font-medium ${
-                  entry.runningBalance >= 0
+                  decimalStringToScaledBigInt(entry.runningBalance) >= BigInt(0)
                     ? 'text-emerald-700'
                     : 'text-red-600'
                 }`}
               >
-                {formatCurrency(String(entry.runningBalance))}
+                {formatCurrency(entry.runningBalance)}
               </TableCell>
             </TableRow>
           ))}

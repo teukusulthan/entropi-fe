@@ -3,7 +3,12 @@
 import { useRef } from 'react';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
-import { formatCurrency, subtractDecimalStrings } from '@/lib/utils';
+import {
+  decimalRatioPercent,
+  divideDecimalStringByInt,
+  formatCurrency,
+  isPositiveDecimalString,
+} from '@/lib/utils';
 import type { Settlement } from '@/lib/types';
 
 interface SettlementCardProps {
@@ -30,9 +35,8 @@ function refId(id: string) {
 }
 
 function RevenueBar({ total, fees, net }: { total: string; fees: string; net: string }) {
-  const totalNum = parseFloat(total);
-  if (totalNum === 0) return null;
-  const feePct  = Math.round((parseFloat(fees) / totalNum) * 100);
+  if (!isPositiveDecimalString(total)) return null;
+  const feePct  = Number(decimalRatioPercent(fees, total, 0));
   const netPct  = 100 - feePct;
   return (
     <div className="mt-2 overflow-hidden rounded-full h-2 flex bg-slate-100">
@@ -49,12 +53,12 @@ export function SettlementCard({ settlement, processedOrders }: SettlementCardPr
     window.print();
   }
 
-  const feeRate = parseFloat(settlement.totalAmount) > 0
-    ? ((parseFloat(settlement.totalFees) / parseFloat(settlement.totalAmount)) * 100).toFixed(2)
+  const feeRate = isPositiveDecimalString(settlement.totalAmount)
+    ? decimalRatioPercent(settlement.totalFees, settlement.totalAmount, 2)
     : '3.00';
 
   const avgOrderValue = settlement.orderCount > 0
-    ? (parseFloat(settlement.totalAmount) / settlement.orderCount).toFixed(4)
+    ? divideDecimalStringByInt(settlement.totalAmount, settlement.orderCount)
     : '0.0000';
 
   return (
@@ -163,7 +167,7 @@ export function SettlementCard({ settlement, processedOrders }: SettlementCardPr
 
         {/* Footer */}
         <div className="flex flex-col gap-1 px-7 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-slate-400">Generated {formatTimestamp(settlement.createdAt)}</p>
+          <p className="text-xs text-slate-400">Created {formatTimestamp(settlement.createdAt)}</p>
           <p className="text-xs text-slate-400">Settlement ID: <span className="font-mono">{settlement.id}</span></p>
         </div>
       </div>

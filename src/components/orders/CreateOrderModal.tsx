@@ -6,7 +6,11 @@ import { Dropdown } from '../ui/Dropdown';
 import { Button } from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { createOrder, payOrder, calculateOrderFees } from '@/lib/api';
-import { generateIdempotencyKey } from '@/lib/utils';
+import {
+  decimalStringToScaledBigInt,
+  generateIdempotencyKey,
+  scaledBigIntToDecimalString,
+} from '@/lib/utils';
 
 interface CreateOrderModalProps {
   open: boolean;
@@ -95,11 +99,10 @@ export function CreateOrderModal({
   function stepAmount(delta: number) {
     setAmount((current) => {
       const normalized = normalizeAmount(current) ?? '0.0000';
-      const SCALE = 10000;
-      const currentScaled = Math.round(parseFloat(normalized) * SCALE);
-      const deltaScaled = Math.round(delta * SCALE);
-      const nextScaled = Math.max(0, currentScaled + deltaScaled);
-      return (nextScaled / SCALE).toFixed(4);
+      const currentScaled = decimalStringToScaledBigInt(normalized);
+      const deltaScaled = BigInt(Math.round(delta * 10000));
+      const nextScaled = currentScaled + deltaScaled;
+      return scaledBigIntToDecimalString(nextScaled > BigInt(0) ? nextScaled : BigInt(0));
     });
   }
 

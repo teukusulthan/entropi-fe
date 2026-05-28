@@ -6,6 +6,7 @@ import { Button } from '../ui/Button';
 import { useToast } from '../ui/Toast';
 import { formatCurrency } from '@/lib/utils';
 import { verifyLedger } from '@/lib/api';
+import { Skeleton } from '../ui/Skeleton';
 import type { LedgerBalance as LedgerBalanceType } from '@/lib/types';
 
 interface LedgerBalanceProps {
