@@ -49,8 +49,8 @@ export default function SettlementPage() {
   }
 
   async function handleConfirm() {
-    setPreviewOpen(false);
     await runSettlement(pendingDate);
+    setPreviewOpen(false);
   }
 
   return (
