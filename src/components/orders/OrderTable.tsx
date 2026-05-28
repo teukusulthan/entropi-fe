@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Table,
   TableHead,
@@ -28,6 +28,8 @@ export function OrderTable({
   error,
   onCreateOrder,
 }: OrderTableProps) {
+  const router = useRouter();
+
   if (loading && !orders) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -74,18 +76,18 @@ export function OrderTable({
           <TableHeader align="right">Fee</TableHeader>
           <TableHeader>Status</TableHeader>
           <TableHeader>Date</TableHeader>
+          <TableHeader />
         </tr>
       </TableHead>
       <TableBody>
         {orders.map((order) => (
-          <TableRow key={order.id}>
-            <TableCell className="font-mono text-slate-600">
-              <Link
-                href={`/orders/${order.id}`}
-                className="inline-flex min-h-11 cursor-pointer items-center rounded-lg px-1 font-semibold text-[var(--accent-strong)] underline-offset-4 hover:text-[var(--accent)] hover:underline"
-              >
-                {truncateId(order.id)}
-              </Link>
+          <TableRow
+            key={order.id}
+            className="cursor-pointer"
+            onClick={() => router.push(`/orders/${order.id}`)}
+          >
+            <TableCell className="font-mono text-sm font-semibold text-slate-700">
+              {truncateId(order.id)}
             </TableCell>
             <TableCell className="text-slate-900">
               {truncateId(order.customerId)}
@@ -103,6 +105,11 @@ export function OrderTable({
             </TableCell>
             <TableCell className="text-slate-500">
               {formatDate(order.createdAt)}
+            </TableCell>
+            <TableCell align="right">
+              <span className="inline-flex items-center rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]">
+                View
+              </span>
             </TableCell>
           </TableRow>
         ))}

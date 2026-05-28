@@ -26,12 +26,14 @@ export function TableBody({ children }: { children: React.ReactNode }) {
 export function TableRow({
   children,
   className = '',
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }) {
   return (
-    <tr className={`transition hover:bg-white/70 ${className}`}>
+    <tr onClick={onClick} className={`transition hover:bg-white/70 ${className}`}>
       {children}
     </tr>
   );
@@ -42,7 +44,7 @@ export function TableHeader({
   align = 'left',
   className = '',
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   align?: 'left' | 'right' | 'center';
   className?: string;
 }) {
