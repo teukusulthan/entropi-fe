@@ -34,7 +34,7 @@ export default function DashboardPage() {
 
       <StatsCards orders={orders} />
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.8fr)_minmax(320px,0.9fr)]">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_200px]">
         <div className="min-w-0">
           <Card>
             <CardHeader>
