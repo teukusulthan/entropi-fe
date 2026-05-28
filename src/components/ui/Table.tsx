@@ -33,7 +33,7 @@ export function TableRow({
   onClick?: () => void;
 }) {
   return (
-    <tr onClick={onClick} className={`transition hover:bg-white/70 ${className}`}>
+    <tr onClick={onClick} className={`transition ${className}`}>
       {children}
     </tr>
   );

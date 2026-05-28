@@ -83,19 +83,20 @@ export function OrderTable({
         {orders.map((order) => (
           <TableRow
             key={order.id}
-            className="cursor-pointer"
+            className="group cursor-pointer transition-all duration-150 hover:bg-white hover:shadow-[0_2px_12px_rgba(15,23,42,0.06)]"
             onClick={() => router.push(`/orders/${order.id}`)}
           >
-            <TableCell className="font-mono text-sm font-semibold text-slate-700">
+            <TableCell className="relative font-mono text-sm font-semibold text-slate-700">
+              <span className="absolute inset-y-0 left-0 w-0.5 origin-center scale-y-0 rounded-full bg-[var(--accent)] transition-transform duration-150 group-hover:scale-y-100" />
               {truncateId(order.id)}
             </TableCell>
-            <TableCell className="text-slate-900">
+            <TableCell className="text-slate-600 transition-colors duration-150 group-hover:text-slate-900">
               {truncateId(order.customerId)}
             </TableCell>
             <TableCell align="right" className="font-mono font-medium text-slate-900">
               {formatCurrency(order.amount)}
             </TableCell>
-            <TableCell align="right" className="font-mono text-slate-500">
+            <TableCell align="right" className="font-mono text-slate-400 transition-colors duration-150 group-hover:text-slate-600">
               {parseFloat(order.feeAmount) > 0
                 ? formatCurrency(order.feeAmount)
                 : '-'}
@@ -103,12 +104,15 @@ export function OrderTable({
             <TableCell>
               <OrderStatusBadge status={order.status} />
             </TableCell>
-            <TableCell className="text-slate-500">
+            <TableCell className="text-slate-400 transition-colors duration-150 group-hover:text-slate-500">
               {formatDate(order.createdAt)}
             </TableCell>
             <TableCell align="right">
-              <span className="inline-flex items-center rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-[var(--accent)] hover:text-[var(--accent-strong)]">
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 transition-all duration-150 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white group-hover:shadow-[0_4px_12px_rgba(15,118,110,0.25)]">
                 View
+                <svg className="h-3 w-3 translate-x-0 transition-transform duration-150 group-hover:translate-x-0.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 6h8M6 2l4 4-4 4" />
+                </svg>
               </span>
             </TableCell>
           </TableRow>
