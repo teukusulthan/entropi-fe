@@ -140,6 +140,10 @@ export async function verifyLedger(id: string): Promise<LedgerBalance> {
   return request<LedgerBalance>(`/verify-ledger/${id}`);
 }
 
+export async function getSettlements(): Promise<Settlement[]> {
+  return request<Settlement[]>('/settlements');
+}
+
 export async function triggerSettlement(
   date: string,
   idempotencyKey: string

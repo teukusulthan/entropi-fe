@@ -58,10 +58,12 @@ export interface LedgerBalance {
 export interface Settlement {
   id: string;
   settlementDate: string;
+  idempotencyKey: string;
   totalAmount: string;
   totalFees: string;
   netPayout: string;
   orderCount: number;
+  processedOrderIds: string[];
   status: 'PENDING' | 'COMPLETED';
   createdAt: string;
 }
