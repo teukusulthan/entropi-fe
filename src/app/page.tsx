@@ -39,9 +39,14 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <h3 className="text-base font-semibold text-slate-900">
-                  Orders
-                </h3>
+                <div>
+                  <h3 className="text-base font-semibold text-slate-900">
+                    Orders
+                  </h3>
+                  <p className="mt-0.5 text-xs text-slate-400">
+                    Click any row to view order details
+                  </p>
+                </div>
                 {orders && (
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                     {orders.length} {orders.length === 1 ? 'order' : 'orders'}
