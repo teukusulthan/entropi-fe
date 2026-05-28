@@ -232,9 +232,15 @@ export function OrderTable({ orders, loading, error, onCreateOrder }: OrderTable
     return Array.from(new Set(orders.map(o => o.customerId))).sort();
   }, [orders]);
 
+  const availableStatuses = useMemo(() => {
+    if (!orders) return [];
+    const seen = Array.from(new Set(orders.map(o => o.status)));
+    return ALL_STATUSES.filter(s => seen.includes(s));
+  }, [orders]);
+
   const statusOptions = [
     { value: 'all', label: 'All statuses' },
-    ...ALL_STATUSES.map(s => ({ value: s, label: fmtStatus(s) })),
+    ...availableStatuses.map(s => ({ value: s, label: fmtStatus(s) })),
   ];
 
   const customerOptions = [
