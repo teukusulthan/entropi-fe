@@ -24,16 +24,16 @@ export function RecentActivity({ orders }: RecentActivityProps) {
       </CardHeader>
       <ul className="divide-y divide-[var(--border)]">
         {recent.map((order) => (
-          <li key={order.id} className="flex items-center justify-between gap-3 px-5 py-3">
-            <div className="min-w-0">
-              <OrderStatusBadge status={order.status} />
-              <p className="mt-1.5 font-mono text-xs font-medium text-slate-600">
+          <li key={order.id} className="px-5 py-3">
+            <OrderStatusBadge status={order.status} />
+            <div className="mt-1.5 flex items-center justify-between gap-2">
+              <span className="font-mono text-xs font-semibold text-slate-700">
                 {formatCurrency(order.amount)}
-              </p>
+              </span>
+              <span className="shrink-0 text-xs text-slate-400">
+                {timeAgo(order.updatedAt)}
+              </span>
             </div>
-            <span className="shrink-0 text-xs text-slate-400">
-              {timeAgo(order.updatedAt)}
-            </span>
           </li>
         ))}
       </ul>
