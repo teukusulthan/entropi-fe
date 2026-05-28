@@ -1,6 +1,6 @@
 import { Card, CardHeader } from '../ui/Card';
 import { OrderStatusBadge } from '../orders/OrderStatusBadge';
-import { timeAgo, truncateId } from '@/lib/utils';
+import { timeAgo, formatCurrency } from '@/lib/utils';
 import type { Order } from '@/lib/types';
 
 interface RecentActivityProps {
@@ -27,8 +27,8 @@ export function RecentActivity({ orders }: RecentActivityProps) {
           <li key={order.id} className="flex items-center justify-between gap-3 px-5 py-3">
             <div className="min-w-0">
               <OrderStatusBadge status={order.status} />
-              <p className="mt-1.5 font-mono text-xs text-slate-400">
-                {truncateId(order.id)}
+              <p className="mt-1.5 font-mono text-xs font-medium text-slate-600">
+                {formatCurrency(order.amount)}
               </p>
             </div>
             <span className="shrink-0 text-xs text-slate-400">
