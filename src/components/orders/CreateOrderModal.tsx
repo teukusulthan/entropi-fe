@@ -5,7 +5,8 @@ import { Modal } from '../ui/Modal';
 import { Input, Select } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useToast } from '../ui/Toast';
-import { createOrder } from '@/lib/api';
+import { createOrder, payOrder, calculateOrderFees } from '@/lib/api';
+import { generateIdempotencyKey } from '@/lib/utils';
 
 interface CreateOrderModalProps {
   open: boolean;
@@ -115,11 +116,16 @@ export function CreateOrderModal({
         customerId: customerId.trim(),
         paymentMethod,
       });
+      const orderId = result.order.id;
+
+      await payOrder(orderId, generateIdempotencyKey());
+      await calculateOrderFees(orderId, generateIdempotencyKey());
+
       resetForm();
       onCreated();
       showToast({
         title: 'Order created',
-        description: `Order ${result.order.id.slice(0, 8)} was created successfully.`,
+        description: `Order ${orderId.slice(0, 8)} created, paid, and fees applied.`,
       });
       onClose();
     } catch (err) {
