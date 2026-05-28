@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Modal } from '../ui/Modal';
 import { Dropdown } from '../ui/Dropdown';
 import { Button } from '../ui/Button';
@@ -90,6 +90,8 @@ export function CreateOrderModal({
     setAmount(normalized ?? value);
   }
 
+  const holdRef = useRef<{ timeout: ReturnType<typeof setTimeout> | null; interval: ReturnType<typeof setInterval> | null }>({ timeout: null, interval: null });
+
   function stepAmount(delta: number) {
     setAmount((current) => {
       const normalized = normalizeAmount(current) ?? '0.0000';
@@ -99,6 +101,19 @@ export function CreateOrderModal({
       const nextScaled = Math.max(0, currentScaled + deltaScaled);
       return (nextScaled / SCALE).toFixed(4);
     });
+  }
+
+  function startHold(delta: number) {
+    stepAmount(delta);
+    holdRef.current.timeout = setTimeout(() => {
+      holdRef.current.interval = setInterval(() => stepAmount(delta), 80);
+    }, 400);
+  }
+
+  function stopHold() {
+    if (holdRef.current.timeout) clearTimeout(holdRef.current.timeout);
+    if (holdRef.current.interval) clearInterval(holdRef.current.interval);
+    holdRef.current = { timeout: null, interval: null };
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -161,12 +176,12 @@ export function CreateOrderModal({
       <form onSubmit={handleSubmit} className="space-y-5">
 
         {/* Amount */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <label htmlFor="amount" className="block text-sm font-medium text-slate-700">
             Amount
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm font-semibold text-slate-600">
+            <span className="pointer-events-none absolute inset-y-0 left-3.5 flex items-center text-sm font-semibold text-slate-500">
               $
             </span>
             <input
@@ -177,29 +192,39 @@ export function CreateOrderModal({
               value={amount}
               onChange={(e) => handleAmountChange(e.target.value)}
               onBlur={(e) => handleAmountBlur(e.target.value)}
-              className="block min-h-11 w-full rounded-xl border border-[var(--border-strong)] bg-white/90 py-3 pl-8 pr-44 text-sm text-slate-900 placeholder-slate-500 shadow-sm outline-none transition focus:border-[var(--accent)]"
+              className="block min-h-11 w-full rounded-xl border border-[var(--border-strong)] bg-white/90 py-3 pl-8 pr-4 text-sm text-slate-900 placeholder-slate-500 shadow-sm outline-none transition focus:border-[var(--accent)]"
               required
             />
-            <div className="absolute inset-y-1 right-1 flex overflow-hidden rounded-lg border border-[var(--border)] bg-slate-50">
-              {[
-                { label: '−1',   delta: -1,   aria: 'Decrease by 1' },
-                { label: '−.1',  delta: -0.1, aria: 'Decrease by 0.1' },
-                { label: '+.1',  delta:  0.1, aria: 'Increase by 0.1' },
-                { label: '+1',   delta:  1,   aria: 'Increase by 1' },
-              ].map((btn, i) => (
-                <button
-                  key={btn.label}
-                  type="button"
-                  aria-label={btn.aria}
-                  onClick={() => stepAmount(btn.delta)}
-                  className={`cursor-pointer px-2.5 text-xs font-bold text-slate-600 transition hover:bg-white hover:text-slate-900 ${i > 0 ? 'border-l border-[var(--border)]' : ''}`}
-                >
-                  {btn.label}
-                </button>
-              ))}
-            </div>
           </div>
-          <p className="text-xs text-slate-500">Enter a USD amount with up to 4 decimal places.</p>
+
+          {/* Stepper buttons */}
+          <div className="grid grid-cols-4 gap-1.5">
+            {[
+              { label: '−1',   delta: -1,   aria: 'Decrease by 1',   negative: true },
+              { label: '−0.1', delta: -0.1, aria: 'Decrease by 0.1', negative: true },
+              { label: '+0.1', delta:  0.1, aria: 'Increase by 0.1', negative: false },
+              { label: '+1',   delta:  1,   aria: 'Increase by 1',   negative: false },
+            ].map(btn => (
+              <button
+                key={btn.label}
+                type="button"
+                aria-label={btn.aria}
+                onMouseDown={() => startHold(btn.delta)}
+                onMouseUp={stopHold}
+                onMouseLeave={stopHold}
+                onTouchStart={() => startHold(btn.delta)}
+                onTouchEnd={stopHold}
+                className={`flex h-9 select-none items-center justify-center rounded-lg border text-sm font-semibold transition-colors duration-100 active:scale-95 ${
+                  btn.negative
+                    ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100 hover:border-red-300'
+                    : 'border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:border-emerald-300'
+                }`}
+              >
+                {btn.label}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-400">Hold a button to change quickly.</p>
         </div>
 
         {/* Customer */}
