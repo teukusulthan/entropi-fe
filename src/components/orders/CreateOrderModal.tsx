@@ -47,8 +47,8 @@ function normalizeAmount(value: string): string | null {
   return `${whole}.${fractional}`;
 }
 
-function deriveCustomerId(name: string): string {
-  return 'cust-' + name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function generateNumericCustomerId(): string {
+  return 'CUST-' + Math.floor(10000000 + Math.random() * 90000000).toString();
 }
 
 export function CreateOrderModal({
@@ -60,20 +60,20 @@ export function CreateOrderModal({
   const [amount, setAmount] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState('cust-alice-johnson');
   const [newCustomerName, setNewCustomerName] = useState('');
+  const [generatedCustomerId, setGeneratedCustomerId] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isNewCustomer = selectedCustomer === NEW_CUSTOMER;
 
-  const resolvedCustomerId = isNewCustomer
-    ? deriveCustomerId(newCustomerName)
-    : selectedCustomer;
+  const resolvedCustomerId = isNewCustomer ? generatedCustomerId : selectedCustomer;
 
   function resetForm() {
     setAmount('');
     setSelectedCustomer('cust-alice-johnson');
     setNewCustomerName('');
+    setGeneratedCustomerId('');
     setPaymentMethod('card');
     setError(null);
   }
@@ -203,6 +203,9 @@ export function CreateOrderModal({
             onChange={(e) => {
               setSelectedCustomer(e.target.value);
               setNewCustomerName('');
+              setGeneratedCustomerId(
+                e.target.value === NEW_CUSTOMER ? generateNumericCustomerId() : ''
+              );
               setError(null);
             }}
           />
@@ -217,11 +220,9 @@ export function CreateOrderModal({
                 autoFocus
                 className="block min-h-11 w-full rounded-xl border border-[var(--accent)] bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
               />
-              {newCustomerName.trim() && (
-                <p className="mt-1.5 text-xs text-slate-400">
-                  ID: <span className="font-mono text-slate-600">{deriveCustomerId(newCustomerName)}</span>
-                </p>
-              )}
+              <p className="mt-1.5 text-xs text-slate-400">
+                ID: <span className="font-mono text-slate-600">{generatedCustomerId}</span>
+              </p>
             </div>
           )}
         </div>
