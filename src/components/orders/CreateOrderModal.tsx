@@ -17,13 +17,13 @@ interface CreateOrderModalProps {
 const NEW_CUSTOMER = '__new__';
 
 const presetCustomers = [
+  { value: NEW_CUSTOMER,           label: '+ New customer' },
   { value: 'cust-alice-johnson',   label: 'Alice Johnson' },
   { value: 'cust-bob-smith',       label: 'Bob Smith' },
   { value: 'cust-acme-corp',       label: 'Acme Corp' },
   { value: 'cust-diana-chen',      label: 'Diana Chen' },
   { value: 'cust-techflow-inc',    label: 'TechFlow Inc' },
   { value: 'cust-marcus-williams', label: 'Marcus Williams' },
-  { value: NEW_CUSTOMER,           label: '+ New customer' },
 ];
 
 const paymentMethods = [
@@ -58,7 +58,7 @@ export function CreateOrderModal({
 }: CreateOrderModalProps) {
   const { showToast } = useToast();
   const [amount, setAmount] = useState('');
-  const [selectedCustomer, setSelectedCustomer] = useState(presetCustomers[0].value);
+  const [selectedCustomer, setSelectedCustomer] = useState('cust-alice-johnson');
   const [newCustomerName, setNewCustomerName] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [loading, setLoading] = useState(false);
@@ -72,7 +72,7 @@ export function CreateOrderModal({
 
   function resetForm() {
     setAmount('');
-    setSelectedCustomer(presetCustomers[0].value);
+    setSelectedCustomer('cust-alice-johnson');
     setNewCustomerName('');
     setPaymentMethod('card');
     setError(null);
