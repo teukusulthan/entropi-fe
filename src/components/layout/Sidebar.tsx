@@ -33,7 +33,7 @@ export function Sidebar() {
           Orders, settlement, and ledger visibility in one place.
         </p>
       </div>
-      <nav className="flex-1 space-y-2 px-4 py-6">
+      <nav className="flex-1 space-y-1 px-4 py-6">
         {navItems.map((item) => {
           const active = isActive(item.href, item.label);
           return (
@@ -41,13 +41,22 @@ export function Sidebar() {
               key={item.label}
               href={item.href}
               aria-current={active ? 'page' : undefined}
-              className={`block rounded-2xl px-4 py-3 text-sm transition ${
+              className={`group relative flex items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-all duration-200 ease-in-out ${
                 active
-                  ? 'bg-[var(--accent-soft)] text-[var(--accent-strong)] font-semibold shadow-sm'
-                  : 'text-slate-600 hover:bg-white/80 hover:text-slate-900'
+                  ? 'bg-[var(--accent-soft)] font-semibold text-[var(--accent-strong)] shadow-sm'
+                  : 'text-slate-500 hover:bg-white hover:text-slate-900 hover:shadow-[0_2px_8px_rgba(15,23,42,0.06)]'
               }`}
             >
-              {item.label}
+              <span
+                className={`h-5 w-0.5 rounded-full transition-all duration-200 ease-in-out ${
+                  active
+                    ? 'bg-[var(--accent)]'
+                    : 'bg-transparent group-hover:bg-[var(--accent)] group-hover:opacity-60'
+                }`}
+              />
+              <span className={`transition-transform duration-200 ease-in-out ${active ? '' : 'group-hover:translate-x-0.5'}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
