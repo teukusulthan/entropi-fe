@@ -48,7 +48,7 @@ export default function OrderDetailPage({
         error={ledgerError}
       />
 
-      <LedgerBalanceCard balance={ledger?.balance ?? null} />
+      <LedgerBalanceCard balance={ledger?.balance ?? null} orderId={id} />
     </div>
   );
 }
