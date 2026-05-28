@@ -1,12 +1,50 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useSettlement } from '@/lib/hooks/useSettlement';
 import { SettlementTrigger } from '@/components/settlement/SettlementTrigger';
 import { SettlementCard } from '@/components/settlement/SettlementCard';
+import { SettlementPreviewDialog } from '@/components/settlement/SettlementPreviewDialog';
+import { getOrders } from '@/lib/api';
+import type { Order } from '@/lib/types';
 
 export default function SettlementPage() {
   const { data, loading, error, runSettlement } = useSettlement();
+
+  const [previewOpen, setPreviewOpen]     = useState(false);
+  const [previewOrders, setPreviewOrders] = useState<Order[]>([]);
+  const [pendingDate, setPendingDate]     = useState('');
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
+  async function handlePreview(date: string) {
+    setLoadingPreview(true);
+    setPendingDate(date);
+    try {
+      const allOrders = await getOrders();
+
+      const dayStart = new Date(date);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(date);
+      dayEnd.setHours(23, 59, 59, 999);
+
+      const eligible = allOrders.filter(o =>
+        o.status === 'DELIVERED' &&
+        new Date(o.updatedAt) >= dayStart &&
+        new Date(o.updatedAt) <= dayEnd
+      );
+
+      setPreviewOrders(eligible);
+      setPreviewOpen(true);
+    } finally {
+      setLoadingPreview(false);
+    }
+  }
+
+  async function handleConfirm() {
+    setPreviewOpen(false);
+    await runSettlement(pendingDate);
+  }
 
   return (
     <div className="space-y-8">
@@ -23,7 +61,12 @@ export default function SettlementPage() {
       </div>
 
       <div className="space-y-6">
-        <SettlementTrigger loading={loading} error={error} onTrigger={runSettlement} />
+        <SettlementTrigger
+          loading={loadingPreview}
+          error={error}
+          onTrigger={handlePreview}
+        />
+
         {data && (
           <SettlementCard
             settlement={data.settlement}
@@ -31,6 +74,15 @@ export default function SettlementPage() {
           />
         )}
       </div>
+
+      <SettlementPreviewDialog
+        open={previewOpen}
+        date={pendingDate}
+        orders={previewOrders}
+        settling={loading}
+        onConfirm={handleConfirm}
+        onCancel={() => setPreviewOpen(false)}
+      />
     </div>
   );
 }

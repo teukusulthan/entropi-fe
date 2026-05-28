@@ -53,7 +53,7 @@ export function SettlementTrigger({
             />
           </div>
           <Button type="submit" loading={loading}>
-            Run Settlement
+            Preview Settlement
           </Button>
         </form>
         {error && (

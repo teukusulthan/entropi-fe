@@ -7,9 +7,12 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  size?: 'md' | 'lg' | 'xl';
 }
 
-export function Modal({ open, onClose, title, children }: ModalProps) {
+const sizeClass = { md: 'max-w-md', lg: 'max-w-2xl', xl: 'max-w-4xl' };
+
+export function Modal({ open, onClose, title, children, size = 'md' }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -75,7 +78,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="surface-card relative mx-4 w-full max-w-md cursor-default rounded-[28px] border border-[var(--border)]"
+        className={`surface-card relative mx-4 w-full cursor-default rounded-[28px] border border-[var(--border)] ${sizeClass[size]}`}
       >
         <div className="flex items-center justify-between border-b border-[var(--border)] px-6 py-5">
           <h2 id={titleId} className="text-lg font-semibold text-slate-900">
