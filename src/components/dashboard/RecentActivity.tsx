@@ -27,7 +27,7 @@ export function RecentActivity({ orders }: RecentActivityProps) {
           <li key={order.id} className="px-5 py-3">
             <OrderStatusBadge status={order.status} />
             <div className="mt-1.5 flex items-center justify-between gap-2">
-              <span className="font-mono text-xs font-semibold text-slate-700">
+              <span className="pl-1 font-mono text-xs font-semibold text-slate-700">
                 {formatCurrency(order.amount)}
               </span>
               <span className="shrink-0 text-xs text-slate-400">
