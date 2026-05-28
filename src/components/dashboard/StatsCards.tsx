@@ -1,5 +1,5 @@
 import { Card, CardBody } from '../ui/Card';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, sumDecimalStrings, subtractDecimalStrings } from '@/lib/utils';
 import type { Order } from '@/lib/types';
 
 interface StatsCardsProps {
@@ -9,15 +9,9 @@ interface StatsCardsProps {
 export function StatsCards({ orders }: StatsCardsProps) {
   const totalOrders = orders?.length ?? 0;
 
-  const totalRevenue = orders
-    ? orders.reduce((sum, o) => sum + parseFloat(o.amount), 0)
-    : 0;
-
-  const totalFees = orders
-    ? orders.reduce((sum, o) => sum + parseFloat(o.feeAmount), 0)
-    : 0;
-
-  const netPayout = totalRevenue - totalFees;
+  const totalRevenue = orders ? sumDecimalStrings(orders.map((o) => o.amount)) : '0.0000';
+  const totalFees = orders ? sumDecimalStrings(orders.map((o) => o.feeAmount)) : '0.0000';
+  const netPayout = subtractDecimalStrings(totalRevenue, totalFees);
 
   const stats = [
     {
@@ -27,17 +21,17 @@ export function StatsCards({ orders }: StatsCardsProps) {
     },
     {
       label: 'Total Revenue',
-      value: formatCurrency(String(totalRevenue)),
+      value: formatCurrency(totalRevenue),
       tone: 'text-slate-900',
     },
     {
       label: 'Total Fees',
-      value: formatCurrency(String(totalFees)),
+      value: formatCurrency(totalFees),
       tone: 'text-slate-700',
     },
     {
       label: 'Net Payout',
-      value: formatCurrency(String(netPayout)),
+      value: formatCurrency(netPayout),
       tone: 'text-[var(--accent-strong)]',
     },
   ];

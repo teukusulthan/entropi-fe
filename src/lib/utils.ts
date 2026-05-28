@@ -38,3 +38,19 @@ export function formatStatus(status: string): string {
 export function generateIdempotencyKey(): string {
   return crypto.randomUUID();
 }
+
+// Safe decimal string addition using integer arithmetic (avoids IEEE 754 float drift)
+const DECIMAL_SCALE = 10000;
+
+export function sumDecimalStrings(values: string[]): string {
+  const sum = values.reduce((acc, v) => {
+    return acc + Math.round(parseFloat(v) * DECIMAL_SCALE);
+  }, 0);
+  return (sum / DECIMAL_SCALE).toFixed(4);
+}
+
+export function subtractDecimalStrings(a: string, b: string): string {
+  const aInt = Math.round(parseFloat(a) * DECIMAL_SCALE);
+  const bInt = Math.round(parseFloat(b) * DECIMAL_SCALE);
+  return ((aInt - bInt) / DECIMAL_SCALE).toFixed(4);
+}

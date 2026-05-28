@@ -52,12 +52,13 @@ export function LedgerTable({ entries, loading, error }: LedgerTableProps) {
     );
   }
 
-  let runningBalance = 0;
+  const SCALE = 10000;
+  let runningBalanceScaled = 0;
   const entriesWithBalance = entries.map((entry) => {
-    const debit = entry.debit ? parseFloat(entry.debit) : 0;
-    const credit = entry.credit ? parseFloat(entry.credit) : 0;
-    runningBalance += debit - credit;
-    return { ...entry, runningBalance };
+    const debit = entry.debit ? Math.round(parseFloat(entry.debit) * SCALE) : 0;
+    const credit = entry.credit ? Math.round(parseFloat(entry.credit) * SCALE) : 0;
+    runningBalanceScaled += debit - credit;
+    return { ...entry, runningBalance: runningBalanceScaled / SCALE };
   });
 
   return (
