@@ -14,13 +14,16 @@ interface CreateOrderModalProps {
   onCreated: () => void;
 }
 
-const customers = [
+const NEW_CUSTOMER = '__new__';
+
+const presetCustomers = [
   { value: 'cust-alice-johnson',   label: 'Alice Johnson' },
   { value: 'cust-bob-smith',       label: 'Bob Smith' },
   { value: 'cust-acme-corp',       label: 'Acme Corp' },
   { value: 'cust-diana-chen',      label: 'Diana Chen' },
   { value: 'cust-techflow-inc',    label: 'TechFlow Inc' },
   { value: 'cust-marcus-williams', label: 'Marcus Williams' },
+  { value: NEW_CUSTOMER,           label: '+ New customer' },
 ];
 
 const paymentMethods = [
@@ -44,6 +47,10 @@ function normalizeAmount(value: string): string | null {
   return `${whole}.${fractional}`;
 }
 
+function deriveCustomerId(name: string): string {
+  return 'cust-' + name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 export function CreateOrderModal({
   open,
   onClose,
@@ -51,14 +58,22 @@ export function CreateOrderModal({
 }: CreateOrderModalProps) {
   const { showToast } = useToast();
   const [amount, setAmount] = useState('');
-  const [customerId, setCustomerId] = useState(customers[0].value);
+  const [selectedCustomer, setSelectedCustomer] = useState(presetCustomers[0].value);
+  const [newCustomerName, setNewCustomerName] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isNewCustomer = selectedCustomer === NEW_CUSTOMER;
+
+  const resolvedCustomerId = isNewCustomer
+    ? deriveCustomerId(newCustomerName)
+    : selectedCustomer;
+
   function resetForm() {
     setAmount('');
-    setCustomerId(customers[0].value);
+    setSelectedCustomer(presetCustomers[0].value);
+    setNewCustomerName('');
     setPaymentMethod('card');
     setError(null);
   }
@@ -70,11 +85,7 @@ export function CreateOrderModal({
   }
 
   function handleAmountBlur(value: string) {
-    if (!value.trim()) {
-      setAmount('');
-      return;
-    }
-
+    if (!value.trim()) { setAmount(''); return; }
     const normalized = normalizeAmount(value);
     setAmount(normalized ?? value);
   }
@@ -84,23 +95,25 @@ export function CreateOrderModal({
       const normalized = normalizeAmount(current) ?? '0.0000';
       const [whole, fractional] = normalized.split('.');
       const nextWhole = BigInt(whole) + BigInt(delta);
-      const zero = BigInt(0);
-      const safeWhole = nextWhole < zero ? zero : nextWhole;
-
+      const safeWhole = nextWhole < BigInt(0) ? BigInt(0) : nextWhole;
       return `${safeWhole.toString()}.${fractional}`;
     });
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     if (!amount) {
       const message = 'Please enter an amount.';
       setError(message);
-      showToast({
-        variant: 'error',
-        title: 'Order creation failed',
-        description: message,
-      });
+      showToast({ variant: 'error', title: 'Order creation failed', description: message });
+      return;
+    }
+
+    if (isNewCustomer && !newCustomerName.trim()) {
+      const message = 'Please enter the new customer name.';
+      setError(message);
+      showToast({ variant: 'error', title: 'Order creation failed', description: message });
       return;
     }
 
@@ -108,11 +121,7 @@ export function CreateOrderModal({
     if (!normalizedAmount) {
       const message = 'Please enter a valid amount.';
       setError(message);
-      showToast({
-        variant: 'error',
-        title: 'Order creation failed',
-        description: message,
-      });
+      showToast({ variant: 'error', title: 'Order creation failed', description: message });
       return;
     }
 
@@ -122,7 +131,7 @@ export function CreateOrderModal({
     try {
       const result = await createOrder({
         amount: normalizedAmount,
-        customerId: customerId.trim(),
+        customerId: resolvedCustomerId,
         paymentMethod,
       });
       const orderId = result.order.id;
@@ -138,14 +147,9 @@ export function CreateOrderModal({
       });
       onClose();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to create order';
+      const message = err instanceof Error ? err.message : 'Failed to create order';
       setError(message);
-      showToast({
-        variant: 'error',
-        title: 'Order creation failed',
-        description: message,
-      });
+      showToast({ variant: 'error', title: 'Order creation failed', description: message });
     } finally {
       setLoading(false);
     }
@@ -154,11 +158,10 @@ export function CreateOrderModal({
   return (
     <Modal open={open} onClose={onClose} title="New Order">
       <form onSubmit={handleSubmit} className="space-y-5">
+
+        {/* Amount */}
         <div className="space-y-1.5">
-          <label
-            htmlFor="amount"
-            className="block text-sm font-medium text-slate-700"
-          >
+          <label htmlFor="amount" className="block text-sm font-medium text-slate-700">
             Amount
           </label>
           <div className="relative">
@@ -177,35 +180,53 @@ export function CreateOrderModal({
               required
             />
             <div className="absolute inset-y-1 right-1 flex overflow-hidden rounded-lg border border-[var(--border)] bg-slate-50">
-              <button
-                type="button"
-                aria-label="Decrease amount by 1"
-                onClick={() => stepAmount(-1)}
-                className="cursor-pointer px-3 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-slate-900"
-              >
+              <button type="button" aria-label="Decrease amount by 1" onClick={() => stepAmount(-1)}
+                className="cursor-pointer px-3 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-slate-900">
                 -
               </button>
-              <button
-                type="button"
-                aria-label="Increase amount by 1"
-                onClick={() => stepAmount(1)}
-                className="cursor-pointer border-l border-[var(--border)] px-3 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-slate-900"
-              >
+              <button type="button" aria-label="Increase amount by 1" onClick={() => stepAmount(1)}
+                className="cursor-pointer border-l border-[var(--border)] px-3 text-sm font-bold text-slate-600 transition hover:bg-white hover:text-slate-900">
                 +
               </button>
             </div>
           </div>
-          <p className="text-xs text-slate-500">
-            Enter a USD amount with up to 4 decimal places.
-          </p>
+          <p className="text-xs text-slate-500">Enter a USD amount with up to 4 decimal places.</p>
         </div>
-        <Select
-          id="customerId"
-          label="Customer"
-          options={customers}
-          value={customerId}
-          onChange={(e) => setCustomerId(e.target.value)}
-        />
+
+        {/* Customer */}
+        <div className="space-y-2">
+          <Select
+            id="customerId"
+            label="Customer"
+            options={presetCustomers}
+            value={selectedCustomer}
+            onChange={(e) => {
+              setSelectedCustomer(e.target.value);
+              setNewCustomerName('');
+              setError(null);
+            }}
+          />
+          {isNewCustomer && (
+            <div className="animate-in fade-in slide-in-from-top-1 duration-150">
+              <input
+                id="newCustomerName"
+                type="text"
+                placeholder="Enter customer name"
+                value={newCustomerName}
+                onChange={(e) => setNewCustomerName(e.target.value)}
+                autoFocus
+                className="block min-h-11 w-full rounded-xl border border-[var(--accent)] bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 shadow-sm outline-none transition focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent)]/20"
+              />
+              {newCustomerName.trim() && (
+                <p className="mt-1.5 text-xs text-slate-400">
+                  ID: <span className="font-mono text-slate-600">{deriveCustomerId(newCustomerName)}</span>
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Payment method */}
         <Select
           id="paymentMethod"
           label="Payment Method"
@@ -215,18 +236,12 @@ export function CreateOrderModal({
         />
 
         {error && (
-          <p className="text-sm font-medium text-red-700" role="alert">
-            {error}
-          </p>
+          <p className="text-sm font-medium text-red-700" role="alert">{error}</p>
         )}
 
         <div className="flex justify-end gap-3 border-t border-[var(--border)] pt-4">
-          <Button variant="secondary" type="button" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" loading={loading}>
-            Create Order
-          </Button>
+          <Button variant="secondary" type="button" onClick={onClose}>Cancel</Button>
+          <Button type="submit" loading={loading}>Create Order</Button>
         </div>
       </form>
     </Modal>
