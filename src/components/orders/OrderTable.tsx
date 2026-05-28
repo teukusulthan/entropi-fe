@@ -44,44 +44,53 @@ interface ColumnFilterProps {
 
 function ColumnFilter({ label, value, options, onChange, align = 'left' }: ColumnFilterProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const active = value !== 'all';
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (
+        panelRef.current && !panelRef.current.contains(e.target as Node) &&
+        btnRef.current  && !btnRef.current.contains(e.target as Node)
+      ) setOpen(false);
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 6, left: align === 'right' ? r.right - 160 : r.left });
+    }
+    setOpen(o => !o);
+  }
+
   return (
-    <div ref={ref} className="relative inline-flex">
+    <div className="inline-flex">
       <button
+        ref={btnRef}
         type="button"
-        onClick={() => setOpen(o => !o)}
-        className={`group flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-150 ${
-          active
-            ? 'text-[var(--accent-strong)]'
-            : 'text-slate-500 hover:text-slate-700'
+        onClick={handleToggle}
+        className={`flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-150 ${
+          active ? 'text-[var(--accent-strong)]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
         {label}
-        {active ? (
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-        ) : (
-          <svg
-            className={`h-3 w-3 transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
-            viewBox="0 0 16 16" fill="none" stroke="currentColor"
-            strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
-          >
-            <path d="M4 6l4 4 4-4" />
-          </svg>
-        )}
+        {active
+          ? <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+          : <svg className={`h-3 w-3 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6l4 4 4-4" /></svg>
+        }
       </button>
 
       {open && (
-        <div className={`absolute top-full z-30 mt-2 min-w-[160px] overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.10)] ${align === 'right' ? 'right-0' : 'left-0'}`}>
+        <div
+          ref={panelRef}
+          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
+          className="min-w-[160px] overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.12)]"
+        >
           {options.map(opt => (
             <button
               key={opt.value}
@@ -118,69 +127,69 @@ interface DateRangeFilterProps {
 
 function DateRangeFilter({ from, to, onFromChange, onToChange }: DateRangeFilterProps) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const active = from !== '' || to !== '';
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (
+        panelRef.current && !panelRef.current.contains(e.target as Node) &&
+        btnRef.current  && !btnRef.current.contains(e.target as Node)
+      ) setOpen(false);
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  function handleToggle() {
+    if (!open && btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.bottom + 6, left: r.right - 208 });
+    }
+    setOpen(o => !o);
+  }
+
   return (
-    <div ref={ref} className="relative inline-flex">
+    <div className="inline-flex">
       <button
+        ref={btnRef}
         type="button"
-        onClick={() => setOpen(o => !o)}
-        className={`group flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-150 ${
-          active
-            ? 'text-[var(--accent-strong)]'
-            : 'text-slate-500 hover:text-slate-700'
+        onClick={handleToggle}
+        className={`flex items-center gap-1.5 rounded-md px-1 py-0.5 text-xs font-semibold uppercase tracking-[0.18em] transition-colors duration-150 ${
+          active ? 'text-[var(--accent-strong)]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
         Date
-        {active ? (
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-        ) : (
-          <svg
-            className={`h-3 w-3 transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
-            viewBox="0 0 16 16" fill="none" stroke="currentColor"
-            strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
-          >
-            <path d="M4 6l4 4 4-4" />
-          </svg>
-        )}
+        {active
+          ? <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+          : <svg className={`h-3 w-3 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6l4 4 4-4" /></svg>
+        }
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-30 mt-2 w-52 overflow-hidden rounded-xl border border-[var(--border)] bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.10)]">
+        <div
+          ref={panelRef}
+          style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
+          className="w-52 overflow-hidden rounded-xl border border-[var(--border)] bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.12)]"
+        >
           <div className="space-y-3">
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-slate-500">From</label>
-              <input
-                type="date"
-                value={from}
-                onChange={e => onFromChange(e.target.value)}
+              <input type="date" value={from} onChange={e => onFromChange(e.target.value)}
                 className={`h-8 w-full rounded-lg border px-2.5 text-xs outline-none transition focus:border-[var(--accent)] ${from ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]' : 'border-[var(--border-strong)] text-slate-600'}`}
               />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-slate-500">To</label>
-              <input
-                type="date"
-                value={to}
-                onChange={e => onToChange(e.target.value)}
+              <input type="date" value={to} onChange={e => onToChange(e.target.value)}
                 className={`h-8 w-full rounded-lg border px-2.5 text-xs outline-none transition focus:border-[var(--accent)] ${to ? 'border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--accent-strong)]' : 'border-[var(--border-strong)] text-slate-600'}`}
               />
             </div>
             {active && (
-              <button
-                type="button"
-                onClick={() => { onFromChange(''); onToChange(''); }}
-                className="w-full rounded-lg border border-[var(--border)] py-1.5 text-xs font-medium text-slate-500 transition hover:border-red-300 hover:text-red-500"
-              >
+              <button type="button" onClick={() => { onFromChange(''); onToChange(''); }}
+                className="w-full rounded-lg border border-[var(--border)] py-1.5 text-xs font-medium text-slate-500 transition hover:border-red-300 hover:text-red-500">
                 Clear dates
               </button>
             )}
