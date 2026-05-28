@@ -6,8 +6,13 @@ import type { Settlement } from '../types';
 import { generateIdempotencyKey } from '../utils';
 import { useToast } from '@/components/ui/Toast';
 
+interface SettlementResult {
+  settlement: Settlement;
+  processedOrders: string[];
+}
+
 interface UseSettlementReturn {
-  data: Settlement | null;
+  data: SettlementResult | null;
   loading: boolean;
   error: string | null;
   runSettlement: (date: string) => Promise<void>;
@@ -15,7 +20,7 @@ interface UseSettlementReturn {
 
 export function useSettlement(): UseSettlementReturn {
   const { showToast } = useToast();
-  const [data, setData] = useState<Settlement | null>(null);
+  const [data, setData] = useState<SettlementResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,22 +28,16 @@ export function useSettlement(): UseSettlementReturn {
     setLoading(true);
     setError(null);
     try {
-      const key = generateIdempotencyKey();
-      const settlement = await triggerSettlement(date, key);
-      setData(settlement);
+      const result = await triggerSettlement(date, generateIdempotencyKey());
+      setData(result);
       showToast({
         title: 'Settlement completed',
-        description: `Settlement for ${date} was processed successfully.`,
+        description: `Settlement for ${date} processed ${result.processedOrders.length} order(s).`,
       });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to process settlement';
+      const message = err instanceof Error ? err.message : 'Failed to process settlement';
       setError(message);
-      showToast({
-        variant: 'error',
-        title: 'Settlement failed',
-        description: message,
-      });
+      showToast({ variant: 'error', title: 'Settlement failed', description: message });
     } finally {
       setLoading(false);
     }

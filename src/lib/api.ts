@@ -143,10 +143,9 @@ export async function verifyLedger(id: string): Promise<LedgerBalance> {
 export async function triggerSettlement(
   date: string,
   idempotencyKey: string
-): Promise<Settlement> {
-  const res = await request<{ settlement: Settlement; processedOrders: string[] }>('/settle', {
+): Promise<{ settlement: Settlement; processedOrders: string[] }> {
+  return request<{ settlement: Settlement; processedOrders: string[] }>('/settle', {
     method: 'POST',
     body: JSON.stringify({ date, idempotencyKey }),
   });
-  return res.settlement;
 }
