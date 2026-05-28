@@ -6,7 +6,7 @@ import { Button } from '../ui/Button';
 import { Spinner } from '../ui/Spinner';
 import { useToast } from '../ui/Toast';
 import { OrderStatusBadge } from './OrderStatusBadge';
-import { formatCurrency, formatDate, truncateId, generateIdempotencyKey } from '@/lib/utils';
+import { formatCurrency, formatDate, truncateId, generateIdempotencyKey, subtractDecimalStrings } from '@/lib/utils';
 import {
   calculateOrderFees,
   deliverOrder,
@@ -65,6 +65,29 @@ export function OrderStatusCard({
     }
   }
 
+  // Automatically calculates fees immediately after payment so the dashboard
+  // always reflects accurate fee totals without a separate manual step.
+  async function handlePayment() {
+    if (!order) return;
+    setActionLoading('payment');
+    setActionError(null);
+    try {
+      await payOrder(order.id, generateIdempotencyKey());
+      await calculateOrderFees(order.id, generateIdempotencyKey());
+      onRefetch();
+      showToast({
+        title: 'Payment processed',
+        description: `Order ${truncateId(order.id)} paid and 3% fee applied.`,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Payment failed';
+      setActionError(message);
+      showToast({ variant: 'error', title: 'Payment failed', description: message });
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
   if (loading && !order) {
     return (
       <Card>
@@ -89,7 +112,7 @@ export function OrderStatusCard({
 
   if (!order) return null;
 
-  const netAmount = parseFloat(order.amount) - parseFloat(order.feeAmount);
+  const netAmount = subtractDecimalStrings(order.amount, order.feeAmount);
 
   const details = [
     { label: 'Amount', value: formatCurrency(order.amount), color: 'text-emerald-700' },
@@ -105,7 +128,7 @@ export function OrderStatusCard({
     },
     {
       label: 'Net Amount',
-      value: formatCurrency(String(netAmount)),
+      value: formatCurrency(netAmount),
       color: 'text-slate-900',
     },
     { label: 'Payment Method', value: order.paymentMethod, color: 'text-slate-900' },
@@ -150,34 +173,10 @@ export function OrderStatusCard({
           <div className="mt-6 flex flex-wrap gap-3 border-t border-[var(--border)] pt-5">
             {order.status === 'PENDING' && (
               <Button
-                onClick={() =>
-                  runOrderAction(
-                    'payment',
-                    payOrder,
-                    'Payment processed',
-                    `Order ${truncateId(order.id)} moved to payment confirmed.`,
-                    'Payment failed'
-                  )
-                }
+                onClick={handlePayment}
                 loading={actionLoading === 'payment'}
               >
                 Process Payment
-              </Button>
-            )}
-            {order.status === 'PAID' && (
-              <Button
-                onClick={() =>
-                  runOrderAction(
-                    'fees',
-                    calculateOrderFees,
-                    'Fees calculated',
-                    `Order ${truncateId(order.id)} now has a 3% fee entry.`,
-                    'Fee calculation failed'
-                  )
-                }
-                loading={actionLoading === 'fees'}
-              >
-                Calculate Fees
               </Button>
             )}
             {order.status === 'FEE_CALCULATED' && (
