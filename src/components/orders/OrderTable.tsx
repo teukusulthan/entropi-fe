@@ -89,14 +89,14 @@ function ColumnFilter({ label, value, options, onChange, align = 'left' }: Colum
         <div
           ref={panelRef}
           style={{ position: 'fixed', top: pos.top, left: pos.left, zIndex: 9999 }}
-          className="min-w-[160px] overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.12)]"
+          className="min-w-max overflow-hidden rounded-xl border border-[var(--border)] bg-white shadow-[0_8px_24px_rgba(15,23,42,0.12)]"
         >
           {options.map(opt => (
             <button
               key={opt.value}
               type="button"
               onClick={() => { onChange(opt.value); setOpen(false); }}
-              className={`flex w-full items-center justify-between px-3.5 py-2.5 text-left text-xs transition-colors hover:bg-slate-50 ${
+              className={`flex w-full items-center justify-between gap-4 whitespace-nowrap px-3.5 py-2.5 text-left text-xs transition-colors hover:bg-slate-50 ${
                 value === opt.value
                   ? 'bg-[var(--accent-soft)] font-semibold text-[var(--accent-strong)]'
                   : 'text-slate-700'
@@ -439,9 +439,8 @@ export function OrderTable({ orders, loading, error, onCreateOrder }: OrderTable
                   {formatDate(order.createdAt)}
                 </TableCell>
                 <TableCell align="right">
-                  <span className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 transition-all duration-200 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white group-hover:shadow-[0_4px_12px_rgba(15,118,110,0.25)]">
-                    View
-                    <svg className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--border)] bg-white text-slate-400 transition-all duration-200 group-hover:border-[var(--accent)] group-hover:bg-[var(--accent)] group-hover:text-white group-hover:shadow-[0_4px_12px_rgba(15,118,110,0.25)]">
+                    <svg className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2 6h8M6 2l4 4-4 4" />
                     </svg>
                   </span>
